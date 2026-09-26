@@ -19,11 +19,6 @@ type Props = {
   query: ProductQuery;
 };
 
-/**
- * The URL is the only source of truth for filters: this component reads the parsed query from
- * the server and writes changes back by navigating. Local state only holds unsubmitted price input.
- * The parent remounts it (via `key`) whenever the URL changes, so back/forward stays in sync.
- */
 export function ProductFilters({ categories, query }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -32,7 +27,6 @@ export function ProductFilters({ categories, query }: Props) {
   const [priceError, setPriceError] = useState<string | null>(null);
 
   function navigate(changes: Partial<ProductQuery>) {
-    // Any filter change invalidates the current page number.
     startTransition(() => router.push(productsHref({ ...query, ...changes, page: 1 })));
   }
 

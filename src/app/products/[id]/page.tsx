@@ -11,14 +11,12 @@ import { ReviewList } from "@/features/reviews/components/ReviewList";
 import { listReviewsForProduct } from "@/features/reviews/repository";
 import { formatPrice } from "@/lib/format";
 
-// Reviews change at runtime, so always render on request (also avoids DB access at build time).
 export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ id: string }>;
 };
 
-// Deduplicates the lookup between generateMetadata and the page within one request.
 const loadProduct = cache(async (rawId: string) => {
   const id = parseProductId(rawId);
   return id === null ? null : getProductById(id);

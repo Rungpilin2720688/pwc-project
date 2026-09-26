@@ -7,7 +7,6 @@ export const REVIEW_LIMITS = {
   commentMax: 1000,
 } as const;
 
-/** Shared by the client form (instant feedback) and the API route (authoritative check). */
 export const reviewInputSchema = z.object({
   author: z
     .string()

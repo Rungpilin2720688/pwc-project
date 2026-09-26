@@ -26,7 +26,6 @@ export function ReviewForm({ productId }: { productId: number }) {
   function update(field: keyof FormValues, value: string) {
     const next = { ...values, [field]: value };
     setValues(next);
-    // Only re-validate live after the first submit attempt, to avoid shouting at the user while typing.
     if (submitted) {
       const result = validateReviewInput(next);
       setErrors(result.success ? {} : result.errors);
@@ -68,7 +67,6 @@ export function ReviewForm({ productId }: { productId: number }) {
       setValues(EMPTY);
       setSubmitted(false);
       setStatus({ kind: "success" });
-      // Re-render the server components so the new review and updated rating appear.
       router.refresh();
     } catch {
       setStatus({ kind: "error", message: "Network error. Please check your connection and try again." });

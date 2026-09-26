@@ -14,8 +14,6 @@ model Product {
   price       Decimal  @db.Decimal(10, 2)
   category    String
   imageUrl    String?
-  // Denormalised aggregates so the list page can sort by rating without joining reviews.
-  // Kept in sync atomically when a review is created (see features/reviews/repository.ts).
   ratingAvg   Float    @default(0)
   reviewCount Int      @default(0)
   createdAt   DateTime @default(now())

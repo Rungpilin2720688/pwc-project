@@ -15,7 +15,6 @@ services:
       timeout: 3s
       retries: 10
 
-  # Runs once: applies migrations and seeds 25k products (skipped if data already exists).
   migrate:
     build:
       context: .

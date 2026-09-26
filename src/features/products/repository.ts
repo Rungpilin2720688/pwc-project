@@ -44,7 +44,6 @@ export async function listProducts(query: ProductQuery): Promise<Paginated<Produ
     prisma.product.findMany({
       where,
       select: summarySelect,
-      // Secondary sort on id keeps pagination stable when many rows share the same value.
       orderBy: [{ [SORT_COLUMNS[query.sort]]: query.dir }, { id: "asc" }],
       skip: (query.page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,

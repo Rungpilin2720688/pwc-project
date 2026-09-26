@@ -26,11 +26,6 @@ export async function listReviewsForProduct(productId: number, limit = REVIEWS_P
   return rows.map(toReview);
 }
 
-/**
- * Creates a review and updates the product's rating aggregates in one transaction.
- * The aggregate update is a single UPDATE statement, so concurrent submissions are serialised
- * by Postgres' row lock and no review is lost from the average. Returns null if the product does not exist.
- */
 export async function createReview(productId: number, input: ReviewInput): Promise<Review | null> {
   return prisma.$transaction(async (tx) => {
     const updated = await tx.$executeRaw`

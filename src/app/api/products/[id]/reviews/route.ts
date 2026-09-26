@@ -9,7 +9,6 @@ type Context = { params: Promise<{ id: string }> };
 
 const productNotFound = () => NextResponse.json({ error: "Product not found" }, { status: 404 });
 
-/** GET /api/products/:id/reviews — latest reviews for a product. */
 export async function GET(_request: Request, { params }: Context) {
   const productId = parseProductId((await params).id);
   if (productId === null || !(await getProductById(productId))) return productNotFound();
@@ -18,7 +17,6 @@ export async function GET(_request: Request, { params }: Context) {
   return NextResponse.json({ items: reviews });
 }
 
-/** POST /api/products/:id/reviews — body: { author, rating, comment }. */
 export async function POST(request: Request, { params }: Context) {
   const productId = parseProductId((await params).id);
   if (productId === null) return productNotFound();
@@ -41,7 +39,6 @@ export async function POST(request: Request, { params }: Context) {
   const review = await createReview(productId, parsed.data);
   if (!review) return productNotFound();
 
-  // Rating aggregates changed, so cached renders of the list and detail pages are stale.
   revalidatePath(`/products/${productId}`);
   revalidatePath("/products");
 

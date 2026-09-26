@@ -6,7 +6,6 @@ const PRODUCT_COUNT = Number(process.env.SEED_PRODUCT_COUNT ?? 25_000);
 const BATCH_SIZE = 1_000;
 const FORCE = process.env.SEED_FORCE === "true";
 
-// Deterministic PRNG so every environment gets the same catalogue.
 function mulberry32(seed: number): () => number {
   let a = seed;
   return () => {
@@ -109,7 +108,6 @@ async function main() {
     await prisma.review.createMany({ data: reviews });
   }
 
-  // Explicit ids were inserted, so move the sequence past them for future inserts.
   await prisma.$executeRawUnsafe(
     `SELECT setval(pg_get_serial_sequence('"Product"', 'id'), (SELECT MAX(id) FROM "Product"))`,
   );

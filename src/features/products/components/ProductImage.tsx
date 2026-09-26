@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type Props = {
   name: string;
   category: string;
@@ -11,13 +13,11 @@ function hueFor(text: string): number {
   return hash;
 }
 
-/** Renders the product image, or a deterministic per-category placeholder when none exists. */
 export function ProductImage({ name, category, imageUrl, size = "card" }: Props) {
   const className = `product-image product-image--${size}`;
 
   if (imageUrl) {
-    // eslint-disable-next-line @next/next/no-img-element -- image hosts are not configured yet
-    return <img className={className} src={imageUrl} alt={name} loading="lazy" />;
+    return <Image className={className} src={imageUrl} alt={name} width={480} height={360} unoptimized />;
   }
 
   const hue = hueFor(category);

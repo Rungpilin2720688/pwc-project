@@ -79,7 +79,6 @@ main.container {
   margin: 0 0 0.5rem;
 }
 
-/* Filters */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -173,7 +172,6 @@ textarea:focus {
   align-self: center;
 }
 
-/* Grid & cards */
 .grid {
   list-style: none;
   padding: 0;
@@ -289,7 +287,6 @@ textarea:focus {
   border-radius: var(--radius);
 }
 
-/* Detail page */
 .back-link {
   display: inline-block;
   margin-bottom: 1rem;

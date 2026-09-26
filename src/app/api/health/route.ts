@@ -3,7 +3,6 @@ import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-/** Liveness + DB connectivity check, used by the Docker healthcheck. */
 export async function GET() {
   try {
     await prisma.$queryRaw`SELECT 1`;

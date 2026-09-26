@@ -15,10 +15,6 @@ const optionalPrice = z
   .preprocess((value) => (value === "" ? undefined : value), z.coerce.number().finite().nonnegative().optional())
   .catch(undefined);
 
-/**
- * Single source of truth for the list page's URL state.
- * Every field uses `.catch` so a malformed or hand-edited URL degrades to defaults instead of erroring.
- */
 export const productQuerySchema = z.object({
   category: z.string().trim().min(1).max(100).optional().catch(undefined),
   minPrice: optionalPrice,
@@ -34,7 +30,6 @@ export function parseProductQuery(input: RawSearchParams | URLSearchParams): Pro
   return productQuerySchema.parse(firstValues(input));
 }
 
-/** Inverse of `parseProductQuery`. Omits defaults so shared URLs stay short and canonical. */
 export function serializeProductQuery(query: Partial<ProductQuery>): string {
   const params = new URLSearchParams();
   if (query.category) params.set("category", query.category);
@@ -51,7 +46,6 @@ export function productsHref(query: Partial<ProductQuery>): string {
   return qs ? `/products?${qs}` : "/products";
 }
 
-/** Accepts only canonical positive integer ids ("12", not "012", "1e3" or "12abc"). */
 export function parseProductId(raw: string): number | null {
   if (!/^[1-9]\d{0,9}$/.test(raw)) return null;
   const id = Number(raw);
