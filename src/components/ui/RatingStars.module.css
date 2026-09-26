@@ -1,0 +1,21 @@
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.filled {
+  color: var(--color-star);
+  letter-spacing: 1px;
+}
+
+.empty {
+  color: var(--color-star-empty);
+  letter-spacing: 1px;
+}
+
+.meta {
+  color: var(--color-text-muted);
+}

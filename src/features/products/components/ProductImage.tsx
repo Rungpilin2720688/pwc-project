@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { cn } from "@/lib/cn";
+import styles from "./ProductImage.module.css";
 
 type Props = {
   name: string;
@@ -14,7 +16,7 @@ function hueFor(text: string): number {
 }
 
 export function ProductImage({ name, category, imageUrl, size = "card" }: Props) {
-  const className = `product-image product-image--${size}`;
+  const className = cn(styles.image, styles[size]);
 
   if (imageUrl) {
     return <Image className={className} src={imageUrl} alt={name} width={480} height={360} unoptimized />;
@@ -23,10 +25,10 @@ export function ProductImage({ name, category, imageUrl, size = "card" }: Props)
   const hue = hueFor(category);
   return (
     <div
-      className={className}
+      className={cn(className, styles.placeholder)}
       role="img"
       aria-label={`${name} placeholder image`}
-      style={{ background: `linear-gradient(135deg, hsl(${hue} 70% 85%), hsl(${(hue + 40) % 360} 70% 70%))` }}
+      style={{ background: `linear-gradient(135deg, hsl(${hue} 70% 90%), hsl(${(hue + 40) % 360} 65% 75%))` }}
     >
       <span>{category.charAt(0)}</span>
     </div>

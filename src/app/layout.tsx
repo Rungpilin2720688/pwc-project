@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Container } from "@/components/layout/Container";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import styles from "./layout.module.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,14 +13,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <header className="site-header">
-          <div className="container">
-            <Link href="/products" className="logo">
-              Product Catalogue
-            </Link>
-          </div>
-        </header>
-        <main className="container">{children}</main>
+        <SiteHeader />
+        <main className={styles.main}>
+          <Container>{children}</Container>
+        </main>
       </body>
     </html>
   );

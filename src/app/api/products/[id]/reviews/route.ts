@@ -4,10 +4,11 @@ import { parseProductId } from "@/features/products/query";
 import { getProductById } from "@/features/products/repository";
 import { createReview, listReviewsForProduct } from "@/features/reviews/repository";
 import { reviewInputSchema } from "@/features/reviews/schema";
+import { jsonError } from "@/lib/http";
 
 type Context = { params: Promise<{ id: string }> };
 
-const productNotFound = () => NextResponse.json({ error: "Product not found" }, { status: 404 });
+const productNotFound = () => jsonError(404, "Product not found");
 
 export async function GET(_request: Request, { params }: Context) {
   const productId = parseProductId((await params).id);
@@ -25,15 +26,12 @@ export async function POST(request: Request, { params }: Context) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 });
+    return jsonError(400, "Request body must be valid JSON");
   }
 
   const parsed = reviewInputSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Please fix the highlighted fields", fieldErrors: parsed.error.flatten().fieldErrors },
-      { status: 400 },
-    );
+    return jsonError(400, "Please fix the highlighted fields", parsed.error.flatten().fieldErrors);
   }
 
   const review = await createReview(productId, parsed.data);

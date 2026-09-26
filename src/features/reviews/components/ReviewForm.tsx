@@ -1,152 +1,81 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
-import { REVIEW_LIMITS, validateReviewInput, type ReviewFieldErrors } from "../schema";
+import { Button } from "@/components/ui/Button";
+import { FormField } from "@/components/ui/FormField";
+import { Input, Select, Textarea } from "@/components/ui/FormControls";
+import { REVIEW_LIMITS } from "../schema";
+import { useReviewForm } from "./useReviewForm";
+import styles from "./ReviewForm.module.css";
 
-type FormValues = {
-  author: string;
-  rating: string;
-  comment: string;
-};
-
-type Status = { kind: "idle" } | { kind: "submitting" } | { kind: "success" } | { kind: "error"; message: string };
-
-const EMPTY: FormValues = { author: "", rating: "", comment: "" };
-
-type ApiErrorBody = { error?: string; fieldErrors?: Partial<Record<keyof FormValues, string[]>> };
+const RATING_OPTIONS = [5, 4, 3, 2, 1] as const;
 
 export function ReviewForm({ productId }: { productId: number }) {
-  const router = useRouter();
-  const [values, setValues] = useState<FormValues>(EMPTY);
-  const [errors, setErrors] = useState<ReviewFieldErrors>({});
-  const [submitted, setSubmitted] = useState(false);
-  const [status, setStatus] = useState<Status>({ kind: "idle" });
-
-  function update(field: keyof FormValues, value: string) {
-    const next = { ...values, [field]: value };
-    setValues(next);
-    if (submitted) {
-      const result = validateReviewInput(next);
-      setErrors(result.success ? {} : result.errors);
-    }
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSubmitted(true);
-
-    const result = validateReviewInput(values);
-    if (!result.success) {
-      setErrors(result.errors);
-      return;
-    }
-    setErrors({});
-    setStatus({ kind: "submitting" });
-
-    try {
-      const response = await fetch(`/api/products/${productId}/reviews`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(result.data),
-      });
-
-      if (!response.ok) {
-        const body = (await response.json().catch(() => ({}))) as ApiErrorBody;
-        if (body.fieldErrors) {
-          setErrors({
-            author: body.fieldErrors.author?.[0],
-            rating: body.fieldErrors.rating?.[0],
-            comment: body.fieldErrors.comment?.[0],
-          });
-        }
-        setStatus({ kind: "error", message: body.error ?? "Could not submit your review. Please try again." });
-        return;
-      }
-
-      setValues(EMPTY);
-      setSubmitted(false);
-      setStatus({ kind: "success" });
-      router.refresh();
-    } catch {
-      setStatus({ kind: "error", message: "Network error. Please check your connection and try again." });
-    }
-  }
-
-  const isSubmitting = status.kind === "submitting";
+  const { values, errors, status, isSubmitting, setField, handleSubmit } = useReviewForm(productId);
 
   return (
-    <form className="review-form" onSubmit={handleSubmit} noValidate>
-      <h3>Write a review</h3>
+    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+      <div>
+        <h3 className={styles.title}>Write a review</h3>
+        <p className={styles.subtitle}>Share your experience with other shoppers.</p>
+      </div>
 
-      <label className="field">
-        <span>Your name</span>
-        <input
-          name="author"
-          value={values.author}
-          maxLength={REVIEW_LIMITS.authorMax}
-          onChange={(event) => update("author", event.target.value)}
-          aria-invalid={errors.author ? true : undefined}
-          aria-describedby={errors.author ? "author-error" : undefined}
-        />
-        {errors.author && (
-          <span id="author-error" className="field-error">
-            {errors.author}
-          </span>
+      <FormField label="Your name" error={errors.author}>
+        {(control) => (
+          <Input
+            {...control}
+            name="author"
+            autoComplete="name"
+            maxLength={REVIEW_LIMITS.authorMax}
+            value={values.author}
+            onChange={(event) => setField("author", event.target.value)}
+          />
         )}
-      </label>
+      </FormField>
 
-      <label className="field">
-        <span>Rating</span>
-        <select
-          name="rating"
-          value={values.rating}
-          onChange={(event) => update("rating", event.target.value)}
-          aria-invalid={errors.rating ? true : undefined}
-          aria-describedby={errors.rating ? "rating-error" : undefined}
-        >
-          <option value="">Select a rating</option>
-          {[5, 4, 3, 2, 1].map((n) => (
-            <option key={n} value={n}>
-              {"★".repeat(n)} ({n})
-            </option>
-          ))}
-        </select>
-        {errors.rating && (
-          <span id="rating-error" className="field-error">
-            {errors.rating}
-          </span>
+      <FormField label="Rating" error={errors.rating}>
+        {(control) => (
+          <Select
+            {...control}
+            name="rating"
+            value={values.rating}
+            onChange={(event) => setField("rating", event.target.value)}
+          >
+            <option value="">Select a rating</option>
+            {RATING_OPTIONS.map((rating) => (
+              <option key={rating} value={rating}>
+                {"★".repeat(rating)} ({rating})
+              </option>
+            ))}
+          </Select>
         )}
-      </label>
+      </FormField>
 
-      <label className="field">
-        <span>Comment</span>
-        <textarea
-          name="comment"
-          rows={4}
-          value={values.comment}
-          maxLength={REVIEW_LIMITS.commentMax}
-          onChange={(event) => update("comment", event.target.value)}
-          aria-invalid={errors.comment ? true : undefined}
-          aria-describedby={errors.comment ? "comment-error comment-count" : "comment-count"}
-        />
-        <span id="comment-count" className="muted small">
-          {values.comment.trim().length}/{REVIEW_LIMITS.commentMax}
-        </span>
-        {errors.comment && (
-          <span id="comment-error" className="field-error">
-            {errors.comment}
-          </span>
+      <FormField
+        label="Comment"
+        error={errors.comment}
+        hint={`${values.comment.trim().length}/${REVIEW_LIMITS.commentMax} characters`}
+      >
+        {(control) => (
+          <Textarea
+            {...control}
+            name="comment"
+            rows={4}
+            maxLength={REVIEW_LIMITS.commentMax}
+            value={values.comment}
+            onChange={(event) => setField("comment", event.target.value)}
+          />
         )}
-      </label>
+      </FormField>
 
-      <button type="submit" className="button" disabled={isSubmitting}>
+      <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Submitting…" : "Submit review"}
-      </button>
+      </Button>
 
       <div aria-live="polite">
-        {status.kind === "success" && <p className="success">Thanks! Your review has been posted.</p>}
-        {status.kind === "error" && <p className="field-error">{status.message}</p>}
+        {status.kind === "success" && (
+          <p className={styles.success}>Thanks! Your review has been posted.</p>
+        )}
+        {status.kind === "error" && <p className={styles.error}>{status.message}</p>}
       </div>
     </form>
   );

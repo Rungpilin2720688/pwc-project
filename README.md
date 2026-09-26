@@ -49,26 +49,40 @@ prisma/
   migrations/              # versioned SQL (incl. CHECK constraints)
   seed.ts                  # deterministic 25k-product generator
 src/
-  app/                     # routing only: pages, layouts, route handlers
-    products/(list)/       # list page (+ loading state)
-    products/[id]/         # detail page
-    api/products/...       # REST endpoints
-    api/health/            # liveness + DB check
-  features/                # business code, grouped by domain
+  app/                          # routing only: pages compose feature components
+    products/(list)/            # list page + skeleton loading state
+    products/[id]/              # detail page
+    api/products/...            # REST endpoints
+    api/health/                 # liveness + DB check
+  components/
+    layout/                     # SiteHeader, Container
+    ui/                         # design-system primitives: Button, FormField, Input/Select/Textarea,
+                                # Badge, EmptyState, RatingStars, Skeleton
+  features/                     # business code, grouped by domain
     products/
-      query.ts             # URL <-> typed query (Zod), single source of truth
-      repository.ts        # DB access, maps Prisma rows -> domain types
-      types.ts             # domain types used by UI & API
-      components/          # product UI
+      query.ts                  # URL <-> typed query (Zod), price-range validation
+      repository.ts             # DB access, maps Prisma rows -> domain types
+      types.ts                  # domain types used by UI & API
+      components/
+        ProductCard, ProductGrid, ProductGridSkeleton, ProductImage, ProductDetails, Pagination
+        filters/                # ProductFilters = CategoryFilter + SortSelect + PriceRangeFilter
+                                # + useProductFilters (URL navigation hook)
     reviews/
-      schema.ts            # review validation shared by client & server
-      repository.ts        # create review + update aggregates atomically
-      components/          # ReviewList, ReviewForm
-  components/              # cross-feature UI (RatingStars)
-  lib/                     # infrastructure (db client, formatting, URL helpers)
+      schema.ts                 # validation shared by client & server
+      api.ts                    # typed client for the reviews endpoint
+      repository.ts             # create review + update aggregates atomically
+      components/
+        ReviewSection, ReviewList, ReviewItem, ReviewForm
+        useReviewForm           # form state, validation and submission
+  lib/                          # infrastructure: db client, http helpers, formatting, cn()
 ```
 
-Rule of thumb: `app/` wires things together, `features/<domain>/` owns the logic. A new domain (e.g. carts) is a new folder under `features/` without touching the others.
+Conventions:
+
+- `app/` wires things together; `features/<domain>/` owns the logic. A new domain (e.g. carts) is a new folder under `features/` without touching the others.
+- `components/ui/` holds generic, domain-agnostic building blocks; feature components compose them.
+- Components are presentational; stateful logic lives in hooks (`useProductFilters`, `useReviewForm`) and network calls in `api.ts`, so each piece can be tested and changed on its own.
+- Styles are co-located CSS Modules; `globals.css` only defines design tokens (colours, radius, shadows) and a base reset.
 
 ## Architecture decisions
 

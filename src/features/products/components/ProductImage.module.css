@@ -1,0 +1,22 @@
+.image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.placeholder {
+  display: grid;
+  place-items: center;
+  color: rgb(17 24 39 / 30%);
+  font-weight: 800;
+}
+
+.card {
+  font-size: 3rem;
+}
+
+.hero {
+  font-size: 7rem;
+  border-radius: var(--radius-lg);
+}

@@ -1,0 +1,16 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  font-size: 1.75rem;
+}
+
+.count {
+  color: var(--color-text-muted);
+}

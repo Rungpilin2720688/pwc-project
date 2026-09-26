@@ -46,6 +46,26 @@ export function productsHref(query: Partial<ProductQuery>): string {
   return qs ? `/products?${qs}` : "/products";
 }
 
+export type PriceRangeResult =
+  | { ok: true; minPrice: number | undefined; maxPrice: number | undefined }
+  | { ok: false; error: string };
+
+export function parsePriceRange(minRaw: string, maxRaw: string): PriceRangeResult {
+  const toPrice = (raw: string) => (raw.trim() === "" ? undefined : Number(raw));
+  const isInvalid = (value: number | undefined) => value !== undefined && (!Number.isFinite(value) || value < 0);
+
+  const minPrice = toPrice(minRaw);
+  const maxPrice = toPrice(maxRaw);
+
+  if (isInvalid(minPrice) || isInvalid(maxPrice)) {
+    return { ok: false, error: "Prices must be positive numbers." };
+  }
+  if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
+    return { ok: false, error: "Min price cannot be greater than max price." };
+  }
+  return { ok: true, minPrice, maxPrice };
+}
+
 export function parseProductId(raw: string): number | null {
   if (!/^[1-9]\d{0,9}$/.test(raw)) return null;
   const id = Number(raw);

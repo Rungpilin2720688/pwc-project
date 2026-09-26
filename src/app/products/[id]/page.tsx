@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { RatingStars } from "@/components/RatingStars";
-import { ProductImage } from "@/features/products/components/ProductImage";
+import { ButtonLink } from "@/components/ui/Button";
+import { ProductDetails } from "@/features/products/components/ProductDetails";
 import { parseProductId } from "@/features/products/query";
 import { getProductById } from "@/features/products/repository";
-import { ReviewForm } from "@/features/reviews/components/ReviewForm";
-import { ReviewList } from "@/features/reviews/components/ReviewList";
+import { ReviewSection } from "@/features/reviews/components/ReviewSection";
 import { listReviewsForProduct } from "@/features/reviews/repository";
-import { formatPrice } from "@/lib/format";
+import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -34,31 +32,12 @@ export default async function ProductDetailPage({ params }: Props) {
   const reviews = await listReviewsForProduct(product.id);
 
   return (
-    <article className="detail">
-      <Link href="/products" className="back-link">
+    <article>
+      <ButtonLink href="/products" variant="ghost" className={styles.back}>
         ← Back to products
-      </Link>
-
-      <div className="detail__top">
-        <ProductImage name={product.name} category={product.category} imageUrl={product.imageUrl} size="hero" />
-        <div className="detail__info">
-          <span className="badge">{product.category}</span>
-          <h1>{product.name}</h1>
-          <RatingStars rating={product.rating} reviewCount={product.reviewCount} />
-          <p className="detail__price">{formatPrice(product.price)}</p>
-          <p>{product.description}</p>
-        </div>
-      </div>
-
-      <section className="reviews" aria-labelledby="reviews-heading">
-        <h2 id="reviews-heading">Reviews ({product.reviewCount})</h2>
-        <div className="reviews__layout">
-          <div>
-            <ReviewList reviews={reviews} totalCount={product.reviewCount} />
-          </div>
-          <ReviewForm productId={product.id} />
-        </div>
-      </section>
+      </ButtonLink>
+      <ProductDetails product={product} />
+      <ReviewSection productId={product.id} reviews={reviews} totalCount={product.reviewCount} />
     </article>
   );
 }

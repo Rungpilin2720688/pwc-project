@@ -28,19 +28,18 @@ export const reviewInputSchema = z.object({
 export type ReviewInput = z.infer<typeof reviewInputSchema>;
 export type ReviewFieldErrors = Partial<Record<keyof ReviewInput, string>>;
 
+export function toReviewFieldErrors(fieldErrors: Partial<Record<string, string[]>>): ReviewFieldErrors {
+  return {
+    author: fieldErrors.author?.[0],
+    rating: fieldErrors.rating?.[0],
+    comment: fieldErrors.comment?.[0],
+  };
+}
+
 export function validateReviewInput(
   input: unknown,
 ): { success: true; data: ReviewInput } | { success: false; errors: ReviewFieldErrors } {
   const result = reviewInputSchema.safeParse(input);
   if (result.success) return { success: true, data: result.data };
-
-  const fieldErrors = result.error.flatten().fieldErrors;
-  return {
-    success: false,
-    errors: {
-      author: fieldErrors.author?.[0],
-      rating: fieldErrors.rating?.[0],
-      comment: fieldErrors.comment?.[0],
-    },
-  };
+  return { success: false, errors: toReviewFieldErrors(result.error.flatten().fieldErrors) };
 }

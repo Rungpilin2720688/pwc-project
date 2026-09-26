@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseProductId, parseProductQuery, serializeProductQuery } from "./query";
+import { parsePriceRange, parseProductId, parseProductQuery, serializeProductQuery } from "./query";
 
 describe("parseProductQuery", () => {
   it("returns defaults for an empty URL", () => {
@@ -43,6 +43,28 @@ describe("serializeProductQuery", () => {
     const original = parseProductQuery({ category: "Home", minPrice: "5", sort: "rating", dir: "desc", page: "2" });
     const roundTripped = parseProductQuery(new URLSearchParams(serializeProductQuery(original)));
     expect(roundTripped).toEqual(original);
+  });
+});
+
+describe("parsePriceRange", () => {
+  it("treats blank inputs as no bound", () => {
+    expect(parsePriceRange("", " ")).toEqual({ ok: true, minPrice: undefined, maxPrice: undefined });
+  });
+
+  it("parses valid bounds", () => {
+    expect(parsePriceRange("10", "99.5")).toEqual({ ok: true, minPrice: 10, maxPrice: 99.5 });
+  });
+
+  it.each([
+    ["-1", ""],
+    ["abc", ""],
+    ["", "-5"],
+  ])("rejects invalid input min=%s max=%s", (min, max) => {
+    expect(parsePriceRange(min, max)).toEqual({ ok: false, error: "Prices must be positive numbers." });
+  });
+
+  it("rejects min greater than max", () => {
+    expect(parsePriceRange("50", "10")).toEqual({ ok: false, error: "Min price cannot be greater than max price." });
   });
 });
 

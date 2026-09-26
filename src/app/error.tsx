@@ -1,19 +1,24 @@
 "use client";
 
 import { useEffect } from "react";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 
-export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+type Props = {
+  error: Error & { digest?: string };
+  reset: () => void;
+};
+
+export default function ErrorPage({ error, reset }: Props) {
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
-    <div className="empty-state">
-      <h1>Something went wrong</h1>
-      <p>We could not load this page. Please try again.</p>
-      <button type="button" className="button" onClick={reset}>
-        Try again
-      </button>
-    </div>
+    <EmptyState
+      title="Something went wrong"
+      description="We could not load this page. Please try again."
+      action={<Button onClick={reset}>Try again</Button>}
+    />
   );
 }
