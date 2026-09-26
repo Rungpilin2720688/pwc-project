@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Decimal  @db.Decimal(10, 2)
+  category    String
+  imageUrl    String?
+  // Denormalised aggregates so the list page can sort by rating without joining reviews.
+  // Kept in sync atomically when a review is created (see features/reviews/repository.ts).
+  ratingAvg   Float    @default(0)
+  reviewCount Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  reviews     Review[]
+
+  @@index([category, price])
+  @@index([price])
+  @@index([ratingAvg])
+  @@index([name])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  author    String
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+
+  @@index([productId, createdAt(sort: Desc)])
+}
